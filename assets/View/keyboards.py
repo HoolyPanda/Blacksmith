@@ -11,7 +11,7 @@ mKB = {
                     {
                         "type":"text",
                         "payload": "{\"mainMenu\":\"зарегистрировать\"}",
-                        "label": "Зарегестрировать"
+                        "label": "Зарегистрировать"
                     },
                 "color": "secondary"
             },

@@ -2,7 +2,7 @@ from assets.Model.WeaponModel import Weapon
 
 class WeaponController:
     def __init__(self):
-        self.weapon =  Weapon()
+        self.weapon = Weapon()
         pass
 
     def UpdateParams(self, param: {}):
@@ -23,3 +23,9 @@ class WeaponController:
 
     def GetQRCodeURL(self):
         return self.weapon.QRcodeURL
+
+    def LoadWeaponFromDB(self, id: int):
+        return self.weapon.LoadFromJson(id)
+
+    def AddNewOwner(self, id: int):
+        return self.weapon.AddNewOwner(id)

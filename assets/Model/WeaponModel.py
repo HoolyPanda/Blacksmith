@@ -4,7 +4,7 @@ import vk_api
 from vk_api import VkUpload 
 import json
 import random
-
+import os
 
 class Weapon:
     def __init__(self):
@@ -63,3 +63,18 @@ class Weapon:
         profile.write(dump)
         profile.close()
         return dump
+
+    def LoadFromJson(self, id: int):
+        a = 0
+        for f in os.listdir('./DB/'):
+            if f'{id}' in f:
+                profile = open(f'./DB/{f}', 'r').read()
+                profile = json.loads(profile)
+                self.__dict__.update(profile)
+                return True
+        return False
+
+    def AddNewOwner(self, id: int):
+        self.owners.append(id)
+        self.SaveToJsonFile()
+        return True

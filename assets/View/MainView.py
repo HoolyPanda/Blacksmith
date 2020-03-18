@@ -12,6 +12,8 @@ class MainView:
         self.citizenID = None
         self.weaponCOntroller = WeaponController()
         self.inModelChoose = False
+        self.inQRcodeProfile = False
+        self.inWeaponQRcode = False
 
         pass
 
@@ -30,6 +32,14 @@ class MainView:
                         'random_id': random.randint(1, 10000000000000),
                         'keyboard': weaponCreationKB
                     }) 
+                    pass
+                if payload == 'владелец':
+                    self.session.method('messages.send', {
+                        'message': f'Введите код оружия',
+                        'peer_id': self.vkID,
+                        'random_id': random.randint(1, 10000000000000)
+                    }) 
+                    self.inWeaponQRcode = True 
                     pass
                 elif payload == 'Завершить':
                     return True
@@ -126,20 +136,53 @@ class MainView:
                     'random_id': random.randint(1, 10000000000000),
                     'keyboard': weaponCreationKB
                 }) 
-        elif text.split(' ').__len__() == 1 and text.split('\n').__len__() == 1:
+
+
+        elif text.split(' ').__len__() == 1 and text.split('\n').__len__() == 1 and self.inWeaponQRcode or self.inQRcodeProfile:
             try:
-                # TODO: weapon QR parsing
                 a = base64.b64decode(text)
-                if len(a[len('TransferMoneyTo '):]) > 0:
-                    id = int(a[len('TransferMoneyTo '):])
-                    self.citizenID = id
-                    self.session.method('messages.send', {
-                        'message': f'Профиль гражданина\n\n{paylaod}',
-                        'peer_id': self.vkID,
-                        'random_id': random.randint(1, 10000000000000),
-                        'keyboard': mainKB
-                    })                 
-        
+                if self.inQRcodeProfile:
+                    if len(a[len('TransferMoneyTo '):]) > 0:
+                        id = int(a[len('TransferMoneyTo '):])  
+                        self.inQRcodeProfile = False
+                        self.inWeaponQRcode = False
+                        if self.weaponCOntroller.AddNewOwner(id):
+                            self.session.method('messages.send', {
+                                'message': f'Новый владелец добавлен',
+                                'peer_id': self.vkID,
+                                'random_id': random.randint(1, 10000000000000),
+                                'keyboard': mainKB
+                            }) 
+                        else:
+                            self.session.method('messages.send', {
+                                'message': f'Что-то пошло не так',
+                                'peer_id': self.vkID,
+                                'random_id': random.randint(1, 10000000000000),
+                                'keyboard': mainKB
+                            }) 
+                            return True
+                if self.inWeaponQRcode:
+                    if len(a[len('Weapon'):]) > 0:
+                        id = int(a[len('Weapon '):])
+                        if not self.weaponCOntroller.LoadWeaponFromDB(id):
+                            self.session.method('messages.send', {
+                                'message': f'Что-то пошло не так',
+                                'peer_id': self.vkID,
+                                'random_id': random.randint(1, 10000000000000),
+                                'keyboard': mainKB
+                            }) 
+                            return True
+                        else:
+                            self.inWeaponQRcode = False
+                            self.inQRcodeProfile = True
+                            self.session.method('messages.send', {
+                                'message': f'Введите код нового владельца',
+                                'peer_id': self.vkID,
+                                'random_id': random.randint(1, 10000000000000)
+                            }) 
+                            pass
+                            
+             
             except Exception as e:
                 self.session.method('messages.send', {
                     'message': f'Неверный формат введенных данных',
