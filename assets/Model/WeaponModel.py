@@ -48,7 +48,7 @@ class Weapon:
             client = vk_api.VkApi(login, password)
             client.auth()
             u = VkUpload(client)
-            a = u.photo(photos= QRfile, album_id= albumID, group_id= groupID, caption= f'QrCode')
+            a = u.photo(photos= QRfile, album_id= albumID, group_id= groupID, caption= f'{self.__dict__}')
             a = a[0]
             ownerId = a['owner_id']
             mediaId = a['id']
